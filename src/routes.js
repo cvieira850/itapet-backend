@@ -5,6 +5,7 @@ import SessionController from './app/controllers/SessionController';
 
 
 import UserController from './app/controllers/UserController';
+import PostController from './app/controllers/PostController';
 
 import authMiddleware from './app/middlewares/auth';
 
@@ -28,7 +29,10 @@ routes.use(authMiddleware);
 routes.put('/users/:id', UserController.update);
 routes.delete('/users/:id', UserController.delete);
 
-
+routes.get('/posts', PostController.index);
+routes.post('/posts', PostController.store);
+routes.put('/posts/:id', PostController.update);
+routes.delete('/posts/:id', PostController.delete);
 
 
 
