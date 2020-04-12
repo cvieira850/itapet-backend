@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import * as Yup from 'yup';
 
 import Post from '../models/Post';
@@ -5,13 +6,8 @@ import User from '../models/User';
 
 class PostController {
   async index(req, res) {
-    const { id } = req.query;
+    const { id, q, page } = req.query;
 
-    const loggedUser = await User.findByPk(req.userId);
-
-    if (!loggedUser) {
-      return res.status(400).json({ error: 'Invalid token' });
-    }
 
     if (id) {
       const postExists = await Post.findByPk(id);
@@ -22,9 +18,26 @@ class PostController {
 
       return res.json(postExists);
     }
+    if (page) {
+      const limit = 3;
+
+      const where = q ? { title: { [Op.iLike]: `%${q}%` } } : {};
+
+      const postsCount = await Post.count({ where });
+
+      const lastPage = page * limit >= postsCount;
+
+      const posts = await Post.findAll({
+        where,
+        limit,
+        offset: (page - 1) * limit,
+      });
+
+      return res.json({ lastPage, content: posts });
+    }
 
     const posts = await Post.findAll();
-    console.log(posts);
+
 
     return res.json(posts);
   }
